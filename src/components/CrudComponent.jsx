@@ -1,8 +1,7 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react'
-import { crudReducer } from './Reducer'
-import { Col, Container, Form, FormGroup, Input, Label, Row, Table } from 'reactstrap'
 import axios from 'axios'
-
+import { Col, Container, Form, FormGroup, Input, Label, Row, Table } from 'reactstrap'
+import { crudReducer } from './Reducer'
 const CrudComponent = () => {
     let [state, dispatch] = useReducer(crudReducer, [])
     let [arr, setarr] = useState([])
@@ -10,31 +9,60 @@ const CrudComponent = () => {
     let reference = useRef()
 
     const setData = () => {
-        dispatch({ type: 'setData' })
+        dispatch({ type: 'ADD', obj: obj })
     }
-    const getData = () => {
-        dispatch({ type: 'getData' })
+    const getData = async () => {
+        // if (typeof await state === 'object') {
+        //     console.log(await state)
+        // }
+        // else {
+        // }
+        if (typeof await state === 'object') {
+            setarr([... await state])
+        }
+        else {
+            console.log(await state)
+        }
     }
+    useEffect(() => {
+        getData()
+    }, [state])
 
-    const Delete = (id) => {
-        dispatch({ type: 'deleteData' })
+    useEffect(() => {
+        dispatch({ type: 'GET' })
+    }, [])
+
+    const deleteapi = (id) => {
+        dispatch({ type: 'DELETE', id: id })
     }
 
     const editFunction = (id) => {
-        dispatch({ type: 'editData' })
-
+        dispatch({ type: 'EDIT', id: id, obj: obj })
     }
 
     const updateapi = () => {
-        dispatch({ type: 'updateApi' })
+        obj.id = obj._id
+        axios.post('https://student-api.mycodelibraries.com/api/user/update', obj).then((res) => {
+            // getData()
+        }).catch((err) => console.log(err))
     }
 
-    useEffect(() => {
-        dispatch({ type: 'getData' })
-    }, [])
-
     const changeData = (e) => {
-        dispatch({ type: 'changeData', event: e })
+        if (e.target.name === "hobbies") {
+            if (e.target.checked) {
+                obj.hobbies = [...obj.hobbies, e.target.value]
+            }
+            else {
+                obj.hobbies = obj.hobbies.filter((x) => !x.includes(e.target.value))
+            }
+        }
+        else if (e.target.name === 'userImage') {
+            obj[e.target.name] = e.target.files[0]
+        }
+        else {
+            obj[e.target.name] = e.target.value
+        }
+        setobj({ ...obj })
     }
 
     const submitFunction = (e) => {
@@ -51,13 +79,10 @@ const CrudComponent = () => {
     }
     return (
         <div>
-            {console.log(state)}
-            {/* <button onClick={() => dispatch({ type: 'add', obj: { name: 'Mehul', lastName: 'Waghela' } })}>ADD</button>
-            <button onClick={() => dispatch({ type: 'delete', index: 0 })}>DELETE</button>
-            <button onClick={() => dispatch({ type: 'edit', index: 0 })}>EDIT</button> */}
             <Row>
                 <Col xs={6} className="offset-3">
                     <Container className="mt-1 py-1 px-4 border border-1 border-black rounded-2 shadow-lg">
+
                         <h1 className="text-center py-3">Student Form</h1>
                         <Form onSubmit={(e) => { submitFunction(e) }}>
                             <Row>
@@ -292,7 +317,7 @@ const CrudComponent = () => {
                                 <td>{x.gender}</td>
                                 <td>{x.hobbies}</td>
                                 <td>
-                                    <button onClick={() => Delete(x._id)} className='me-2 btn text-bg-danger'>Delete</button>
+                                    <button onClick={() => deleteapi(x._id)} className='me-2 btn text-bg-danger'>Delete</button>
                                     <button onClick={() => editFunction(x._id)} className='btn text-bg-warning'>Edit</button>
                                 </td>
                             </tr>
@@ -300,7 +325,7 @@ const CrudComponent = () => {
                     </tbody>
                 </Table>
             </div>
-        </div >
+        </div>
     )
 }
 
