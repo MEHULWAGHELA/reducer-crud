@@ -12,17 +12,7 @@ const CrudComponent = () => {
         dispatch({ type: 'ADD', obj: obj })
     }
     const getData = async () => {
-        // if (typeof await state === 'object') {
-        //     console.log(await state)
-        // }
-        // else {
-        // }
-        if (typeof await state === 'object') {
-            setarr([... await state])
-        }
-        else {
-            console.log(await state)
-        }
+        setarr([... await state])
     }
     useEffect(() => {
         getData()
@@ -37,14 +27,13 @@ const CrudComponent = () => {
     }
 
     const editFunction = (id) => {
-        dispatch({ type: 'EDIT', id: id, obj: obj })
+        dispatch({ type: 'EDIT', id: id, obj: obj, setobj: setobj })
+        console.log(obj)
     }
 
     const updateapi = () => {
         obj.id = obj._id
-        axios.post('https://student-api.mycodelibraries.com/api/user/update', obj).then((res) => {
-            // getData()
-        }).catch((err) => console.log(err))
+        dispatch({ type: 'UPDATE', obj: obj })
     }
 
     const changeData = (e) => {

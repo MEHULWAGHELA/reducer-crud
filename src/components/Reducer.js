@@ -35,11 +35,16 @@ export const crudReducer = async (state, action) => {
             })
         }
         case 'EDIT': {
-            let obj = await axios.get("https://student-api.mycodelibraries.com/api/user/get-user-by-id?id=" + action.id).then(async (res) => {
-                return await res.data.data
+            await axios.get("https://student-api.mycodelibraries.com/api/user/get-user-by-id?id=" + action.id).then((res) => {
+                res.data.data.hobbies = res.data.data.hobbies.split(",")
+                action.setobj(res.data.data)
             }).catch((err) => { console.log(err) })
-            obj.hobbies = await obj.hobbies.split(",")
-            return await obj
+            return state
+        }
+        case 'UPDATE': {
+            return await axios.post('https://student-api.mycodelibraries.com/api/user/update', action.obj).then(async (res) => {
+                return await getData()
+            }).catch((err) => console.log(err))
         }
         default: {
             return state
